@@ -56,12 +56,32 @@ import {
   wallOrientation
 } from "./geometry.js";
 
-const STORAGE_KEY = "house-1113-cad-state-v9";
-const VERSION_STORAGE_KEY = "house-1113-cad-versions-v1";
-const AUTH_KEY = "house-1113-cad-auth-v1";
+const STORAGE_KEY = "house-1113-layout-state-v1";
+const VERSION_STORAGE_KEY = "house-1113-layout-versions-v1";
+const AUTH_KEY = "house-1113-layout-auth-v1";
 const PASSCODE_HASH = "a020f494725f155483b7f74deab8543a22df5fad74d508ecfd9f5c1bb0f79b92";
 const SNAP_GRID = 0.5;
 const DEFAULT_ZOOM = 0.78;
+const WINDOW_BLUE = "#2563eb";
+
+const LINE_COLORS = [
+  { id: "black", label: "Black", value: "#15191d" },
+  { id: "red", label: "Red", value: "#d93025" },
+  { id: "blue", label: "Blue", value: WINDOW_BLUE },
+  { id: "green", label: "Green", value: "#15803d" },
+  { id: "brown", label: "Brown", value: "#8b5e34" }
+];
+const LINE_COLOR_MAP = Object.fromEntries(LINE_COLORS.map((item) => [item.id, item]));
+
+function wallStroke(wall) {
+  if (wall.kind === "exterior") return "#111518";
+  return LINE_COLOR_MAP[wall.color]?.value || "#20252a";
+}
+
+function windowOffset(opening) {
+  const horizontal = Math.abs(opening.x2 - opening.x1) >= Math.abs(opening.y2 - opening.y1);
+  return horizontal ? { x: 0, y: 0.34 } : { x: 0.34, y: 0 };
+}
 
 const toolItems = [
   { id: "select", label: "Select", icon: MousePointer2 },
@@ -168,6 +188,7 @@ function App() {
   const [showUnderlay, setShowUnderlay] = useState(true);
   const [showInspector, setShowInspector] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
+  const [lineColor, setLineColor] = useState("black");
   const [draftWall, setDraftWall] = useState(null);
   const [hoverPoint, setHoverPoint] = useState(null);
   const [dragState, setDragState] = useState(null);
@@ -309,7 +330,8 @@ function App() {
         y1: cleanNumber(draftWall.y),
         x2: cleanNumber(aligned.x),
         y2: cleanNumber(aligned.y),
-        thickness: 0.34
+        thickness: 0.34,
+        color: lineColor
       };
       commitProject((current) => ({ ...current, walls: [...current.walls, newWall] }), "Wall added");
       setSelected({ type: "wall", id });
@@ -317,7 +339,7 @@ function App() {
       setHoverPoint(null);
       setTool("select");
     },
-    [alignedDraftEnd, commitProject, draftWall, snapToWallAnchor]
+    [alignedDraftEnd, commitProject, draftWall, lineColor, snapToWallAnchor]
   );
 
   const placeLabelPoint = useCallback(
@@ -496,7 +518,7 @@ function App() {
     const wallMarkup = project.walls
       .map(
         (wall) => `
-      <line x1="${wall.x1}" y1="${wall.y1}" x2="${wall.x2}" y2="${wall.y2}" stroke="${wall.kind === "exterior" ? "#111518" : "#20252a"}" stroke-width="${wall.thickness}" stroke-linecap="square" />`
+      <line x1="${wall.x1}" y1="${wall.y1}" x2="${wall.x2}" y2="${wall.y2}" stroke="${wallStroke(wall)}" stroke-width="${wall.thickness}" stroke-linecap="square" />`
       )
       .join("");
     const openingMarkup = openings.map((opening) => renderOpeningMarkup(opening)).join("");
@@ -713,6 +735,8 @@ function App() {
               <BrickWall size={16} />
               <span>Add Line</span>
             </button>
+            <LineColorPicker value={lineColor} onChange={setLineColor} />
+            <ColorKey />
             <button className={`chip ${tool === "label" ? "on" : ""}`} onClick={() => setTool("label")}>
               <TextCursorInput size={16} />
               <span>Add Label</span>
@@ -785,8 +809,8 @@ function App() {
               ))}
               {draftWall && (
                 <g className="draft-wall">
-                  <circle cx={draftWall.x} cy={draftWall.y} r="0.5" />
-                  <line x1={draftWall.x} y1={draftWall.y} x2={draftEnd.x} y2={draftEnd.y} />
+                  <circle cx={draftWall.x} cy={draftWall.y} r="0.5" fill={LINE_COLOR_MAP[lineColor].value} />
+                  <line x1={draftWall.x} y1={draftWall.y} x2={draftEnd.x} y2={draftEnd.y} stroke={LINE_COLOR_MAP[lineColor].value} />
                   <text x={(draftWall.x + draftEnd.x) / 2} y={(draftWall.y + draftEnd.y) / 2 - 1.1} textAnchor="middle">
                     {formatFeet(Math.hypot(draftEnd.x - draftWall.x, draftEnd.y - draftWall.y))}
                   </text>
@@ -963,6 +987,37 @@ function TopBar({
   );
 }
 
+function LineColorPicker({ value, onChange }) {
+  return (
+    <label className="line-color-picker">
+      <span>Line</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)} aria-label="Line color">
+        {LINE_COLORS.map((color) => (
+          <option key={color.id} value={color.id}>
+            {color.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ColorKey() {
+  return (
+    <div className="color-key" aria-label="Color key">
+      <span>Key</span>
+      <span className="key-item">
+        <i className="swatch black" />
+        Walls
+      </span>
+      <span className="key-item">
+        <i className="swatch blue" />
+        Windows
+      </span>
+    </div>
+  );
+}
+
 function PasswordGate({ onUnlock }) {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
@@ -1036,6 +1091,7 @@ function WallSegment({ wall, selected, onPointerDown, onEndpointDown }) {
         y1={wall.y1}
         x2={wall.x2}
         y2={wall.y2}
+        stroke={wallStroke(wall)}
         strokeWidth={wall.thickness}
         onPointerDown={(event) => onPointerDown(event, wall)}
       />
@@ -1126,11 +1182,11 @@ function Opening({ opening }) {
     return <line className="wall-opening-cut" x1={opening.x1} y1={opening.y1} x2={opening.x2} y2={opening.y2} />;
   }
   if (opening.kind === "window") {
+    const offset = windowOffset(opening);
     return (
       <g className="window-opening">
-        <line className="window-cut" x1={opening.x1} y1={opening.y1} x2={opening.x2} y2={opening.y2} />
         <line x1={opening.x1} y1={opening.y1} x2={opening.x2} y2={opening.y2} />
-        <line x1={opening.x1} y1={opening.y1 + 0.36} x2={opening.x2} y2={opening.y2 + 0.36} />
+        <line x1={opening.x1 + offset.x} y1={opening.y1 + offset.y} x2={opening.x2 + offset.x} y2={opening.y2 + offset.y} />
       </g>
     );
   }
@@ -1193,6 +1249,19 @@ function Inspector({ wall, label, labelMetric, project, areaMetrics, onClose, on
           </div>
           <Field label="Thickness">
             <NumberInput value={wall.thickness} step={0.05} disabled={wall.kind === "exterior"} onChange={(thickness) => onUpdateWall(wall.id, { thickness })} />
+          </Field>
+          <Field label="Line Color">
+            <select
+              value={wall.color || "black"}
+              disabled={wall.kind === "exterior"}
+              onChange={(event) => onUpdateWall(wall.id, { color: event.target.value })}
+            >
+              {LINE_COLORS.map((color) => (
+                <option key={color.id} value={color.id}>
+                  {color.label}
+                </option>
+              ))}
+            </select>
           </Field>
           <div className="button-row">
             <NudgeButton disabled={wall.kind === "exterior"} icon={ArrowDownToLine} label="Up" onClick={() => onUpdateWall(wall.id, { y1: wall.y1 - 0.5, y2: wall.y2 - 0.5 })} />
@@ -1327,7 +1396,8 @@ function renderOpeningMarkup(opening) {
     return `<line x1="${opening.x1}" y1="${opening.y1}" x2="${opening.x2}" y2="${opening.y2}" stroke="#ffffff" stroke-width="0.82" stroke-linecap="square"/>`;
   }
   if (opening.kind === "window") {
-    return `<g><line x1="${opening.x1}" y1="${opening.y1}" x2="${opening.x2}" y2="${opening.y2}" stroke="#ffffff" stroke-width="0.8" stroke-linecap="square"/><g stroke="#9aa7ad" stroke-width="0.16"><line x1="${opening.x1}" y1="${opening.y1}" x2="${opening.x2}" y2="${opening.y2}"/><line x1="${opening.x1}" y1="${opening.y1 + 0.36}" x2="${opening.x2}" y2="${opening.y2 + 0.36}"/></g></g>`;
+    const offset = windowOffset(opening);
+    return `<g stroke="${WINDOW_BLUE}" stroke-width="0.18" stroke-linecap="square"><line x1="${opening.x1}" y1="${opening.y1}" x2="${opening.x2}" y2="${opening.y2}"/><line x1="${opening.x1 + offset.x}" y1="${opening.y1 + offset.y}" x2="${opening.x2 + offset.x}" y2="${opening.y2 + offset.y}"/></g>`;
   }
   return `<path d="${doorArcPath(opening)}" fill="none" stroke="#707d83" stroke-width="0.14"/>`;
 }

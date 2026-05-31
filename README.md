@@ -1,6 +1,6 @@
-# 1113 45th Ave NE Homeowner CAD
+# 1113 45th Ave NE Layout
 
-Interactive floor-plan editor seeded from the provided plan scan.
+Interactive floor-plan layout editor seeded from the provided plan scan.
 
 ## Run
 
@@ -16,7 +16,9 @@ The hosted page is protected by a simple client-side passcode gate.
 ## What It Does
 
 - Exterior walls are locked and cannot be moved.
+- Exterior window/opening gaps are marked in blue with an on-canvas color key.
 - Interior walls can be selected, dragged, nudged, resized by handles, deleted, or added.
+- Added lines can be labeled by color: black, red, blue, green, or brown.
 - Room labels can be moved and edited with room names, dimensions, and contractor/wish-list notes.
 - Add Line snaps to the 6-inch grid and nearby wall endpoints/intersections so new walls connect cleanly.
 - Selected walls show live scaled length, and selected labels show printed and closed-area square-foot estimates.

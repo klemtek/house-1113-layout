@@ -33,7 +33,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -415,7 +416,10 @@ button:disabled {
 
 .canvas-chips {
   display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .chip {
@@ -427,6 +431,61 @@ button:disabled {
   border-color: rgba(15, 118, 110, 0.45);
   background: #ecfdf9;
   color: var(--teal);
+}
+
+.line-color-picker,
+.color-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #30424a;
+  box-shadow: 0 10px 28px rgba(11, 31, 42, 0.08);
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.line-color-picker select {
+  min-width: 82px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #cfd9df;
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.color-key {
+  gap: 9px;
+}
+
+.key-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #42535c;
+  white-space: nowrap;
+}
+
+.swatch {
+  display: inline-block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: #15191d;
+}
+
+.swatch.blue {
+  background: #2563eb;
+}
+
+.swatch.black {
+  background: #15191d;
 }
 
 .drawing-wrap {
@@ -445,16 +504,11 @@ button:disabled {
 }
 
 .wall-line {
-  stroke: #15191d;
   stroke-linecap: square;
 }
 
-.wall-segment.interior .wall-line {
-  stroke: #20252a;
-}
-
 .wall-segment.selected .wall-line {
-  stroke: var(--teal);
+  filter: drop-shadow(0 0 1.2px rgba(15, 118, 110, 0.75));
 }
 
 .wall-hit {
@@ -488,13 +542,8 @@ button:disabled {
 }
 
 .draft-wall line {
-  stroke: var(--teal);
   stroke-width: 0.25;
   stroke-dasharray: 1.2 0.8;
-}
-
-.draft-wall circle {
-  fill: var(--teal);
 }
 
 .draft-wall text,
@@ -512,16 +561,16 @@ button:disabled {
   vector-effect: non-scaling-stroke;
 }
 
-.window-opening .window-cut,
 .wall-opening-cut {
   stroke: #ffffff;
   stroke-width: 0.8;
   stroke-linecap: square;
 }
 
-.window-opening line:not(.window-cut) {
-  stroke: #9aa7ad;
-  stroke-width: 0.13;
+.window-opening line {
+  stroke: #2563eb;
+  stroke-width: 0.18;
+  stroke-linecap: square;
   vector-effect: non-scaling-stroke;
 }
 
@@ -717,7 +766,8 @@ button:disabled {
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   border: 1px solid #d9e1e5;
   border-radius: 6px;
@@ -729,7 +779,8 @@ button:disabled {
   outline: 0;
 }
 
-.field input {
+.field input,
+.field select {
   height: 38px;
   padding: 0 10px;
 }
@@ -741,12 +792,14 @@ button:disabled {
 }
 
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   border-color: rgba(15, 118, 110, 0.65);
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
 }
 
-.field input:disabled {
+.field input:disabled,
+.field select:disabled {
   background: #f4f7f8;
   color: #78868d;
 }

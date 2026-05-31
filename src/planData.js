@@ -99,4 +99,19 @@ export const initialLabels = [
 
 export const fixedDetails = [];
 
-export const openings = [];
+export const openings = [
+  { id: "win-primary-bath-top", kind: "window", x1: 59.15, y1: 1.95, x2: 63.23, y2: 1.95 },
+  { id: "win-primary-right-upper", kind: "window", x1: 67.35, y1: 16.38, x2: 67.35, y2: 18.25 },
+  { id: "win-west-bedroom-top", kind: "window", x1: 7.33, y1: 27.48, x2: 16.77, y2: 27.48 },
+  { id: "win-breakfast-top", kind: "window", x1: 24.45, y1: 27.72, x2: 38.38, y2: 27.72 },
+  { id: "win-family-top", kind: "window", x1: 42.9, y1: 27.86, x2: 52.1, y2: 27.86 },
+  { id: "win-primary-bottom-left", kind: "window", x1: 60.3, y1: 27.94, x2: 62.8, y2: 27.94 },
+  { id: "win-left-bath", kind: "window", x1: 3.6, y1: 41.27, x2: 3.6, y2: 44.9 },
+  { id: "win-left-bedroom", kind: "window", x1: 3.35, y1: 48.88, x2: 3.35, y2: 54.95 },
+  { id: "win-left-garage", kind: "window", x1: 3, y1: 60.27, x2: 3, y2: 64.05 },
+  { id: "win-dining-south", kind: "window", x1: 20.25, y1: 59.68, x2: 23.52, y2: 59.68 },
+  { id: "win-garage-front", kind: "window", x1: 5.05, y1: 81.25, x2: 25.2, y2: 81.25 },
+  { id: "win-se-bedroom-bottom", kind: "window", x1: 48.12, y1: 75.58, x2: 58.98, y2: 75.58 },
+  { id: "win-laundry-bottom", kind: "window", x1: 61.67, y1: 66.25, x2: 66.9, y2: 66.25 },
+  { id: "win-right-laundry", kind: "window", x1: 68.85, y1: 57.3, x2: 68.85, y2: 60.65 }
+];
