@@ -56,7 +56,7 @@ import {
   wallOrientation
 } from "./geometry.js";
 
-const STORAGE_KEY = "house-1113-cad-state-v8";
+const STORAGE_KEY = "house-1113-cad-state-v9";
 const VERSION_STORAGE_KEY = "house-1113-cad-versions-v1";
 const AUTH_KEY = "house-1113-cad-auth-v1";
 const PASSCODE_HASH = "a020f494725f155483b7f74deab8543a22df5fad74d508ecfd9f5c1bb0f79b92";
@@ -162,10 +162,10 @@ function App() {
   const [project, setProject] = useState(loadInitialState);
   const [versions, setVersions] = useState(loadVersions);
   const [versionName, setVersionName] = useState("");
-  const [selected, setSelected] = useState({ type: "wall", id: "i-family-living-partial" });
+  const [selected, setSelected] = useState({ type: "wall", id: "i-family-short" });
   const [tool, setTool] = useState("select");
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [showUnderlay, setShowUnderlay] = useState(false);
+  const [showUnderlay, setShowUnderlay] = useState(true);
   const [showInspector, setShowInspector] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [draftWall, setDraftWall] = useState(null);
@@ -452,7 +452,7 @@ function App() {
   const resetPlan = () => {
     const next = cloneInitialState();
     commitProject(next, "Reset to traced plan");
-    setSelected({ type: "wall", id: "i-family-living-partial" });
+    setSelected({ type: "wall", id: "i-family-short" });
     setDraftWall(null);
     setHoverPoint(null);
   };
@@ -512,17 +512,6 @@ function App() {
   <g>${openingMarkup}</g>
   <g>${fixedDetailMarkup}</g>
   <g>${labelMarkup}</g>
-  <g transform="translate(7 70)" font-family="Inter, Arial, sans-serif" fill="#15191d">
-    <line x1="0" y1="0" x2="20" y2="0" stroke="#15191d" stroke-width="0.18"/>
-    <line x1="0" y1="-0.55" x2="0" y2="0.55" stroke="#15191d" stroke-width="0.14"/>
-    <line x1="5" y1="-0.45" x2="5" y2="0.45" stroke="#15191d" stroke-width="0.1"/>
-    <line x1="10" y1="-0.55" x2="10" y2="0.55" stroke="#15191d" stroke-width="0.14"/>
-    <line x1="20" y1="-0.55" x2="20" y2="0.55" stroke="#15191d" stroke-width="0.14"/>
-    <text x="0" y="-1.1" font-size="1.1">0'</text>
-    <text x="4.45" y="-1.1" font-size="1.1">5'</text>
-    <text x="9.1" y="-1.1" font-size="1.1">10'</text>
-    <text x="18.8" y="-1.1" font-size="1.1">20'</text>
-  </g>
 </svg>`;
   }, [areaMetrics, project.labels, project.walls]);
 
@@ -773,12 +762,12 @@ function App() {
             <rect data-canvas="true" x="-50" y="-50" width="200" height="180" fill="url(#grid)" />
             <image
               href={`${import.meta.env.BASE_URL}source-plan.png`}
-              x="3"
-              y="-1"
-              width="93"
-              height="77"
+              x={PLAN_META.sourceImage.x}
+              y={PLAN_META.sourceImage.y}
+              width={PLAN_META.sourceImage.width}
+              height={PLAN_META.sourceImage.height}
               preserveAspectRatio="none"
-              opacity={showUnderlay ? 0.2 : 0}
+              opacity={showUnderlay ? 0.22 : 0}
               pointerEvents="none"
             />
             <g className="fixed-details" pointerEvents="none">
@@ -819,8 +808,6 @@ function App() {
                 />
               ))}
             </g>
-            <Compass />
-            <ScaleBar />
           </svg>
         </div>
         <div className="status-bar">
@@ -1332,41 +1319,6 @@ function NudgeButton({ icon: Icon, label, disabled, onClick }) {
       <Icon size={17} />
       <span>{label}</span>
     </button>
-  );
-}
-
-function Compass() {
-  return (
-    <g className="compass" transform="translate(9 66)">
-      <circle cx="0" cy="0" r="2.1" />
-      <path d="M0 -5 L1.15 -2.2 L0 -2.7 L-1.15 -2.2 Z" />
-      <text x="0" y="0.75" textAnchor="middle">
-        N
-      </text>
-    </g>
-  );
-}
-
-function ScaleBar() {
-  return (
-    <g className="scale-bar" transform="translate(7 71.5)">
-      <line x1="0" y1="0" x2="20" y2="0" />
-      {[0, 5, 10, 20].map((x) => (
-        <line key={x} x1={x} y1="-0.45" x2={x} y2="0.45" />
-      ))}
-      <text x="0" y="-1">
-        0'
-      </text>
-      <text x="4.3" y="-1">
-        5'
-      </text>
-      <text x="8.9" y="-1">
-        10'
-      </text>
-      <text x="18.4" y="-1">
-        20'
-      </text>
-    </g>
   );
 }
 
