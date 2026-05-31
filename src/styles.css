@@ -520,6 +520,10 @@ button:disabled {
   font-size: 1.34px;
   font-weight: 760;
   letter-spacing: 0;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-linejoin: round;
+  stroke-width: 0.24px;
 }
 
 .label-dims {
@@ -527,6 +531,18 @@ button:disabled {
   font-size: 1.03px;
   font-weight: 560;
   letter-spacing: 0;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.88);
+  stroke-linejoin: round;
+  stroke-width: 0.2px;
+}
+
+.room-label.compact .label-name {
+  font-size: 1.05px;
+}
+
+.room-label.compact .label-dims {
+  font-size: 0.76px;
 }
 
 .label-note {

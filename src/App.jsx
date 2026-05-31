@@ -56,7 +56,7 @@ import {
   wallOrientation
 } from "./geometry.js";
 
-const STORAGE_KEY = "house-1113-cad-state-v7";
+const STORAGE_KEY = "house-1113-cad-state-v8";
 const AUTH_KEY = "house-1113-cad-auth-v1";
 const PASSCODE_HASH = "a020f494725f155483b7f74deab8543a22df5fad74d508ecfd9f5c1bb0f79b92";
 const SNAP_GRID = 0.5;
@@ -865,6 +865,12 @@ function PasswordGate({ onUnlock }) {
   );
 }
 
+function splitDimensionText(dimensions) {
+  const parts = dimensions.split(/\s+x\s+/);
+  if (parts.length !== 2) return [dimensions];
+  return [parts[0], `x ${parts[1]}`];
+}
+
 function WallSegment({ wall, selected, onPointerDown, onEndpointDown }) {
   const isExterior = wall.kind === "exterior";
   return (
@@ -914,10 +920,19 @@ function RoomLabel({ label, metric, selected, onPointerDown }) {
     : selected && metric?.printedArea
       ? `${formatArea(metric.printedArea)} printed`
       : "";
-  const labelHeight = label.note ? 9.8 : areaText ? 7.2 : 5.6;
+  const compactDims = metric?.printedArea && metric.printedArea < 65;
+  const dimensionLines = compactDims ? splitDimensionText(label.dimensions) : [label.dimensions];
+  const dimensionStep = compactDims ? 0.82 : 1.05;
+  const dimensionLineHeight = dimensionLines.length > 1 ? dimensionStep : 0;
+  const areaY = dimensionLines.length > 1 ? 3.45 : 2.75;
+  const labelHeight = label.note
+    ? 9.8 + dimensionLineHeight
+    : areaText
+      ? 7.2 + dimensionLineHeight
+      : 5.6 + dimensionLineHeight;
   return (
     <g
-      className={`room-label ${selected ? "selected" : ""}`}
+      className={`room-label ${compactDims ? "compact" : ""} ${selected ? "selected" : ""}`}
       transform={`translate(${label.x} ${label.y})`}
       onPointerDown={(event) => onPointerDown(event, label)}
     >
@@ -926,15 +941,19 @@ function RoomLabel({ label, metric, selected, onPointerDown }) {
         {label.name}
       </text>
       <text className="label-dims" y="1.2" textAnchor="middle">
-        {label.dimensions}
+        {dimensionLines.map((line, index) => (
+          <tspan key={line} x="0" dy={index === 0 ? 0 : dimensionStep}>
+            {line}
+          </tspan>
+        ))}
       </text>
       {areaText && (
-        <text className="label-area" y="2.75" textAnchor="middle">
+        <text className="label-area" y={areaY} textAnchor="middle">
           {areaText}
         </text>
       )}
       {label.note && (
-        <text className="label-note" y={areaText ? "4.55" : "3.05"} textAnchor="middle">
+        <text className="label-note" y={areaText ? areaY + 1.8 : areaY + 0.3} textAnchor="middle">
           {label.note.length > 30 ? `${label.note.slice(0, 30)}...` : label.note}
         </text>
       )}
